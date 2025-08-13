@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  pdf-processor-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: volcanion-pdf-processor-dev
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_LOGGING__LOGLEVEL__DEFAULT=Debug
+    volumes:
+      - ./src:/app/src:ro
+      - pdf_uploads_dev:/app/uploads
+      - pdf_downloads_dev:/app/downloads
+      - pdf_logs_dev:/app/logs
+    restart: unless-stopped
+    networks:
+      - pdf-processor-dev-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    command: ["dotnet", "watch", "run", "--project", "/app/src/Presentation/PdfProcessorApi.csproj"]
+
+volumes:
+  pdf_uploads_dev:
+    driver: local
+  pdf_downloads_dev:
+    driver: local
+  pdf_logs_dev:
+    driver: local
+
+networks:
+  pdf-processor-dev-network:
+    driver: bridge

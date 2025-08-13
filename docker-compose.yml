@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  pdf-processor-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: volcanion-pdf-processor
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=devpassword
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certificates/aspnetapp.pfx
+    volumes:
+      - pdf_uploads:/app/uploads
+      - pdf_downloads:/app/downloads
+      - pdf_logs:/app/logs
+      # Uncomment the line below to mount certificates for HTTPS
+      # - ./certificates:/app/certificates:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/pdfconversion/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - pdf-processor-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Optional: Add nginx as reverse proxy
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: volcanion-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./certificates:/etc/nginx/certificates:ro
+  #   depends_on:
+  #     - pdf-processor-api
+  #   networks:
+  #     - pdf-processor-network
+
+volumes:
+  pdf_uploads:
+    driver: local
+  pdf_downloads:
+    driver: local
+  pdf_logs:
+    driver: local
+
+networks:
+  pdf-processor-network:
+    driver: bridge

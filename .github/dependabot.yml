@@ -1,0 +1,71 @@
+version: 2
+updates:
+  # Enable version updates for .NET / NuGet
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "volcanion-team"
+    assignees:
+      - "volcanion-team"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "nuget"
+    milestone: "Dependency Updates"
+    target-branch: "main"
+    
+  # Monitor Dockerfile dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "volcanion-team"
+    assignees:
+      - "volcanion-team"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+    milestone: "Dependency Updates"
+    target-branch: "main"
+
+  # Monitor GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/.github"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "volcanion-team"
+    assignees:
+      - "volcanion-team"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    milestone: "Dependency Updates"
+    target-branch: "main"
+
+# Ignore certain dependencies that should be updated manually
+# Add patterns here if needed:
+# ignore:
+#   - dependency-name: "Microsoft.AspNetCore.*"
+#     versions: ["6.x", "7.x"]
